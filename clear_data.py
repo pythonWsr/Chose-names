@@ -33,5 +33,35 @@ def main(a=None):
             input('点击任意键以继续')
             exit()
 
+def modify_target_file(target_file_path):
+    with open(target_file_path, 'r+', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    # 初始化行号，包括空行
+    line_number = 1
+    non_empty_lines = []
+
+    for line in lines:
+        # 保留所有行，包括空行
+        non_empty_lines.append(line)
+        if line_number == 240:
+            # 修改第240行：将debug设置为False
+            non_empty_lines[-1] = "debug = False\n"
+        line_number += 1
+
+    # 删除第248行及之后的所有内容
+    if line_number >= 248:
+        non_empty_lines = non_empty_lines[:247]
+
+    # 重新写入修改后的行
+    try:
+        with open(target_file_path, 'w', encoding='utf-8') as file:
+            file.writelines(non_empty_lines)
+    except PermissionError as e:
+        print(f"没有权限写入文件：{target_file_path}")
+
+    print('Set debug to False successfully!')
+
 if __name__ == '__main__':
+    modify_target_file('guide.py')
     main()

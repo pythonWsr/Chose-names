@@ -1,8 +1,6 @@
-def Writer():
-    print('随机点名程序(made by wsr)')
-Writer()
-
 import guide
+guide.Writer()
+
 with open(r'.\data\name_base.txt', 'r', encoding='utf-8') as f:
     g = f.read()
     if g != '':
@@ -14,6 +12,7 @@ with open(r'.\data\name_base.txt', 'r', encoding='utf-8') as f:
 
 import random
 import time
+import os
 
 name_base = eval(g)
 title = 'name_base>>>'
@@ -86,15 +85,56 @@ def new_group(group_name):
     r = 'new_group'
     guide.new_group(group_name)
     chosed = False
+    if os.path.exists('.\\data\\title_list.txt'):
+        with open('.\\data\\old_title.txt', 'r', encoding='utf-8') as f:
+            a = eval(f.read())
+        a.update({group_name: group_name})
+        with open('.\\data\\old_title.txt', 'w', encoding='utf-8') as f:
+            f.write(str(a))
+
+def change_title(new_title):
+    global r, name_base, use_title, title_front, h, n_int, chosed
+    r = 'change_title'
+    if use_title is False:
+        if n_int == 1:
+            guide.change_title(title_front, new_title)
+        elif n_int > 1:
+            guide.change_title(h, new_title)
+
+    elif use_title is True:
+        if n_int == 1:
+            with open('.\\data\\old_title.txt', 'r', encoding='UTF-8') as f:
+                title_front = eval(f.read())[title_front]
+            guide.change_title(title_front, new_title)
+        elif n_int > 1:
+            with open('.\\data\\old_title.txt', 'r', encoding='UTF-8') as f:
+                h = eval(f.read())[h]
+            guide.change_title(h, new_title)
+
+    use_title = True
+    chosed = False
 
 chosed = False
+
 while True:
+    if os.path.exists('.\\data\\title_list.txt'):
+        use_title = True
+    else:
+        use_title = False
+
     with open('.\\data\\numbers.txt', 'r', encoding='utf-8') as f:
         n = f.read()
         n_int = int(n)
 
     if n_int == 1 and chosed == False:
-        title = 'name_base>>>'
+        if use_title is False:
+            title_front = 'name_base'
+            title = title_front + '>>>'
+        elif use_title is True:
+            with open('.\\data\\title_list.txt', 'r', encoding='utf-8') as f:
+                title_dict = eval(f.read())
+            title_front = title_dict['name_base']
+            title = title_front + '>>>'
         p = input(title)
         try:
             q = eval(p)
@@ -112,7 +152,19 @@ while True:
         while h not in g:
             print(h + ' is not exist in' + str(g))
             h = input('chose group here: ' + str(g))
-        title = h + '>>>'
+
+        if use_title is True:
+            with open('.\\data\\title_list.txt', 'r', encoding='utf-8') as f:
+                title_dict = eval(f.read())
+            try:
+                title = title_dict[h] + '>>>'
+            except KeyError as e:
+                guide.error_log(e)
+                title = h + '>>>'
+
+        elif use_title is False:
+            title = h + '>>>'
+
         chosed = True
         continue
 
@@ -144,6 +196,13 @@ while True:
     elif r == 'new_group':
         with open(r'.\log\group_log_' + str(time.time()) + '.txt', 'w', encoding='utf-8') as f:
             f.write('create new group: ' + str(p))
+
+    elif r == 'change_title':
+        if os.path.exists('.\\data\\title_list.txt'):
+            with open('.\\data\\title_list.txt', 'r', encoding='utf-8') as f:
+                log_title_dict = eval(f.read())
+        with open(r'.\log\change_log_' + str(time.time()) + '.txt', 'w', encoding='utf-8') as f:
+            f.write('changed title: ' + str(log_title_dict))
 
     else:
         with open(r'.\log\other_log_' + str(time.time()) + '.txt', 'w', encoding='utf-8') as f:
